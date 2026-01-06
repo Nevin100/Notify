@@ -122,21 +122,35 @@ const Home = () => {
         handleClearSearch={handleClearSearch}
       />
       <div className="container mx-auto">
-        <div className="grid grid-cols-3 gap-4 mt-8 rounded-md">
-          {allNotes.map((item) => (
-            <NoteCard
-              key={item._id}
-              title={item.title}
-              date={moment(item.createdOn).format("Do MMM YYYY")}
-              content={item.content}
-              tag={item.tags}
-              isPlnned={item.isPinned}
-              onEdit={() => handleEdit(item)}
-              onDelete={() => deleteNote(item)}
-              onPinNote={() => updateisPinned(item)}
-            />
-          ))}
-        </div>
+        <div className="container mx-auto px-4">
+  {allNotes && allNotes.length > 0 ? (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 rounded-md">
+      {allNotes.map((item) => (
+        <NoteCard
+          key={item._id}
+          title={item.title}
+          date={moment(item.createdOn).format("Do MMM YYYY")}
+          content={item.content}
+          tag={item.tags}
+          isPlnned={item.isPinned}
+          onEdit={() => handleEdit(item)}
+          onDelete={() => deleteNote(item)}
+          onPinNote={() => updateisPinned(item)}
+        />
+      ))}
+    </div>
+  ) : (
+    <div className="flex flex-col items-center justify-center mt-20 text-center px-4">
+      <h2 className="text-4xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-200">
+        Create your first note 📝
+      </h2>
+      <p className="mt-2 text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-md">
+        Start by adding a new note. Your notes will appear here in a clean and responsive layout.
+      </p>
+    </div>
+  )}
+</div>
+
       </div>
       <button
         className="w-16 h-16 flex items-center justify-center rounded-full bg-primary hover:bg-blue-900 absolute right-10 bottom-10 transition easy-in-out delay-50"

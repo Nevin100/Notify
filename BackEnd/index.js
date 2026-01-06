@@ -241,7 +241,7 @@ app.delete("/delete-note/:noteId", authenticateToken, async (req, res) => {
 app.put("/update-note-pinned/:noteId", authenticateToken, async (req, res) => {
   const { noteId } = req.params;
   const { isPinned } = req.body;
-  const user = req.user; // Assuming req.user contains user info after authentication
+  const user = req.user; 
 
   if (isPinned === undefined) {
     return res
