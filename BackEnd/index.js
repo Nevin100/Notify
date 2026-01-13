@@ -9,6 +9,7 @@ app.use(express.json());
 const allowedOrigins = [
   "http://localhost:5173",
   "https://notify-self-two.vercel.app",
+  "https://notify.nevinbali.me"
 ];
 
 app.use(
