@@ -242,7 +242,7 @@ app.delete("/delete-note/:noteId", authenticateToken, async (req, res) => {
 app.put("/update-note-pinned/:noteId", authenticateToken, async (req, res) => {
   const { noteId } = req.params;
   const { isPinned } = req.body;
-  const user = req.user; 
+  const {user} = req.user; 
 
   if (isPinned === undefined) {
     return res
@@ -288,31 +288,31 @@ app.get("/get-user", authenticateToken, async (req, res) => {
 
 //Search-Query :
 app.get("/search-notes", authenticateToken, async (req, res) => {
-  const user = req.user;
+  const { user } = req.user;
   const { query } = req.query;
 
   if (!query) {
-    return res
-      .status(400)
-      .json({ error: true, message: "Search Query is required" });
+    return res.status(400).json({ error: true, message: "Search Query is required" });
   }
 
   try {
+    const searchRegex = new RegExp(query.split("").join(".*"), "i");
+
     const matchingNotes = await Note.find({
       userId: user._id,
       $or: [
-        { title: { $regex: new RegExp(query, "i") } },
-        { content: { $regex: new RegExp(query, "i") } },
+        { title: searchRegex },
+        { content: searchRegex },
       ],
     });
 
-    return res
-      .status(200)
-      .json({ error: false, notes: matchingNotes, message: "Notes matched!" });
+    return res.status(200).json({
+      error: false,
+      notes: matchingNotes,
+    });
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ error: true, message: "Internal Server Issue" });
+    return res.status(500).json({ error: true, message: "Internal Server Issue" });
   }
 });
 

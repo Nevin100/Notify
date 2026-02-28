@@ -2,11 +2,13 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import SignUp from "./pages/SignUp.jsx";
+import Landing from "./pages/Landing.jsx";
 
 const routes = (
   <Router>
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Landing />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/login" exact element={<Login />} />
       <Route path="/signup" exact element={<SignUp />} />
     </Routes>

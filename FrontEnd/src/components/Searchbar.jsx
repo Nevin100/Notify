@@ -1,28 +1,45 @@
-import { FaMagnifyingGlass } from "react-icons/fa6";
-import { IoMdClose } from "react-icons/io";
+/* eslint-disable react/prop-types */
+import { Search, X } from "lucide-react";
 
-// eslint-disable-next-line react/prop-types
 const Searchbar = ({ value, onChange, handleSearch, onClearSearch }) => {
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch(value); 
+    }
+  };
+
+  const handleClickSearch = () => {
+    handleSearch(value);   
+  };
+
   return (
-    <div className="w-80 flex items-center px-4 bg-slate-100 rounded-md">
+    <div className="w-full flex items-center px-4 bg-slate-100/80 border border-transparent focus-within:border-blue-200 focus-within:bg-white focus-within:shadow-md transition-all duration-300 rounded-xl group">
+      
+      <Search
+        size={18}
+        className="text-slate-400 group-focus-within:text-blue-500 transition-colors cursor-pointer"
+        onClick={handleClickSearch}
+      />
+
       <input
-        placeholder="Search here"
         type="text"
-        className="w-full text-xs bg-transparent py-[11px] outline-none"
+        placeholder="Search notes..."
+        className="w-full text-sm bg-transparent py-2.5 px-3 outline-none text-slate-700 placeholder:text-slate-400"
         value={value}
         onChange={onChange}
+        onKeyDown={handleKeyDown}
       />
 
-      {value && (
-        <IoMdClose
-          className="text-xl text-slate-400 cursor-pointer  hover:text-black "
-          onClick={onClearSearch}
-        />
-      )}
-      <FaMagnifyingGlass
-        className="text-slate-400 cursor-pointer hover:text-black "
-        onClick={handleSearch}
-      />
+      <div className="flex items-center gap-2">
+        {value && (
+          <X
+            size={18}
+            className="text-slate-400 cursor-pointer hover:text-red-500 transition-colors"
+            onClick={onClearSearch}
+          />
+        )}
+      </div>
     </div>
   );
 };

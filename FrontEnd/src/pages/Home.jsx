@@ -1,14 +1,13 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar.jsx";
 import NoteCard from "../components/NoteCard.jsx";
-import { IoMdAdd } from "react-icons/io";
 import AddEditNotes from "./AddEditNotes.jsx";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utilis/AxiosInstance.js";
 import moment from "moment";
+import { Plus, StickyNote, SearchX } from "lucide-react";
 
 const Home = () => {
   const [openAddEditModal, setOpenAddEditModal] = useState({
@@ -21,6 +20,7 @@ const Home = () => {
   const [allNotes, setAllNotes] = useState([]);
   const navigate = useNavigate();
   const [isSearch, setIsSearch] = useState(false);
+
   const handleEdit = (noteDetails) => {
     setOpenAddEditModal({ isShown: true, data: noteDetails, type: "edit" });
   };
@@ -32,14 +32,13 @@ const Home = () => {
         setUserInfo(response.data.user);
       }
     } catch (error) {
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         localStorage.clear();
         navigate("/login");
       }
     }
   };
 
-  //Get All Notes :
   const getAllNotes = async () => {
     try {
       const response = await axiosInstance.get("/get-all-notes");
@@ -47,7 +46,7 @@ const Home = () => {
         setAllNotes(response.data.notes);
       }
     } catch (error) {
-      console.log(error);
+      console.log("Error fetching notes:", error);
     }
   };
 
@@ -55,20 +54,11 @@ const Home = () => {
     const noteId = data._id;
     try {
       const response = await axiosInstance.delete(`/delete-note/${noteId}`);
-
       if (response.data && !response.data.error) {
-        setAllNotes((prevNotes) =>
-          prevNotes.filter((note) => note._id !== noteId)
-        );
+        setAllNotes((prev) => prev.filter((note) => note._id !== noteId));
       }
     } catch (error) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        console.log(error);
-      }
+      console.log("Delete error:", error);
     }
   };
 
@@ -94,13 +84,9 @@ const Home = () => {
   const updateisPinned = async (noteData) => {
     const noteId = noteData._id;
     try {
-      const response = await axiosInstance.put(
-        `/update-note-pinned/${noteId}`,
-        {
-          isPinned: !noteData.isPinned,
-        }
-      );
-
+      const response = await axiosInstance.put(`/update-note-pinned/${noteId}`, {
+        isPinned: !noteData.isPinned,
+      });
       if (response.data && response.data.note) {
         getAllNotes();
       }
@@ -108,84 +94,89 @@ const Home = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
     getAllNotes();
     getUserInfo();
-    return () => {};
   }, []);
 
   return (
-    <>
+    <div className="min-h-screen bg-slate-50/50">
       <Navbar
         userInfo={userInfo}
         onSearchNote={onSearchNote}
         handleClearSearch={handleClearSearch}
       />
-      <div className="container mx-auto">
-        <div className="container mx-auto px-4">
-  {allNotes && allNotes.length > 0 ? (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 rounded-md">
-      {allNotes.map((item) => (
-        <NoteCard
-          key={item._id}
-          title={item.title}
-          date={moment(item.createdOn).format("Do MMM YYYY")}
-          content={item.content}
-          tag={item.tags}
-          isPlnned={item.isPinned}
-          onEdit={() => handleEdit(item)}
-          onDelete={() => deleteNote(item)}
-          onPinNote={() => updateisPinned(item)}
-        />
-      ))}
-    </div>
-  ) : (
-    <div className="flex flex-col items-center justify-center mt-20 text-center px-4">
-      <h2 className="text-4xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-200">
-        Create your first note 📝
-      </h2>
-      <p className="mt-2 text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-md">
-        Start by adding a new note. Your notes will appear here in a clean and responsive layout.
-      </p>
-    </div>
-  )}
-</div>
 
-      </div>
+      <main className="container mx-auto px-6 py-10">
+        {allNotes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300">
+            {allNotes.map((item) => (
+              <NoteCard
+                key={item._id}
+                title={item.title}
+                date={moment(item.createdOn).format("MMM Do, YYYY")}
+                content={item.content}
+                tags={item.tags}
+                isPinned={item.isPinned}
+                onEdit={() => handleEdit(item)}
+                onDelete={() => deleteNote(item)}
+                onPinNote={() => updateisPinned(item)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center mt-32 text-center animate-in fade-in zoom-in duration-500">
+            {isSearch ? (
+              <>
+                <SearchX size={80} className="text-slate-300 mb-4" />
+                <p className="text-slate-500">Oops! No notes found matching your search.</p>
+              </>
+            ) : (
+              <>
+                <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+                  <StickyNote size={40} className="text-blue-500" />
+                </div>
+                <h2 className="text-2xl font-semibold text-slate-800">
+                  Ready to capture your thoughts?
+                </h2>
+                <p className="mt-2 text-slate-500 max-w-sm leading-relaxed">
+                  Start by adding your first note! Click the button below to organize your ideas, tasks, and goals.
+                </p>
+              </>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Floating Action Button - Modernized */}
       <button
-        className="w-16 h-16 flex items-center justify-center rounded-full bg-primary hover:bg-blue-900 absolute right-10 bottom-10 transition easy-in-out delay-50"
+        className="fixed right-6 bottom-6 md:right-10 md:bottom-10 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-xl transition-all duration-300 group"
         onClick={() => {
-          setOpenAddEditModal({
-            isShown: true,
-            type: "add",
-            data: null,
-          });
+          setOpenAddEditModal({ isShown: true, type: "add", data: null });
         }}
       >
-        <IoMdAdd className="text-[32px] text-white" />
+        <Plus size={32} className="group-hover:scale-110 transition-transform" />
       </button>
 
+      {/* Modal - Modern Styling */}
       <Modal
         isOpen={openAddEditModal.isShown}
-        onRequestClose={() => {}}
+        onRequestClose={() => setOpenAddEditModal({ isShown: false, type: "add", data: null })}
         style={{
-          overlay: {
-            backgroundColor: "rgba(0,0,0,0.2)",
-          },
+          overlay: { backgroundColor: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(4px)", zIndex: 1000 },
         }}
-        contentLabel=""
-        className="w-[40%] max-h-3/4 bg-white rounded-md mx-auto mt-14 p-5 overflow-scroll"
+        contentLabel="Add or Edit Note"
+        className="w-[90%] md:w-[60%] lg:w-[40%] max-h-[80vh] bg-white rounded-2xl mx-auto mt-20 p-6 shadow-2xl overflow-y-auto outline-none"
       >
         <AddEditNotes
           type={openAddEditModal.type}
           noteData={openAddEditModal.data}
-          onClose={() => {
-            setOpenAddEditModal({ isShown: false, type: "add", data: null });
-          }}
+          onClose={() => setOpenAddEditModal({ isShown: false, type: "add", data: null })}
           getAllNotes={getAllNotes}
         />
       </Modal>
-    </>
+    </div>
   );
 };
 
